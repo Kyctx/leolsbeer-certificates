@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Сертификаты LEOLSBEER</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@800&family=Montserrat:wght@500;600;700&display=swap&subset=cyrillic">
+<style>
+*{box-sizing:border-box}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: form column on the left, live certificate preview on the right; stacks on phones */
+:root{
+  --bg:#eef1f2; --panel:#ffffff; --line:#d6dde0; --fg:#1d2c33; --muted:#5d6f77;
+  --accent:#b3141c; --accent-fg:#ffffff; --field:#f7f9fa; --stage:#2f4a56; --ok:#2f7d4f;
+  --ui:"Montserrat",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --display:"Montserrat Alternates","Montserrat",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#152127; --panel:#1d2c33; --line:#2e4048; --fg:#e8eef0; --muted:#97a9b0;
+  --accent:#d0262e; --accent-fg:#ffffff; --field:#172429; --stage:#0f191d; --ok:#5fbf86; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#152127; --panel:#1d2c33; --line:#2e4048; --fg:#e8eef0; --muted:#97a9b0;
+  --accent:#d0262e; --accent-fg:#ffffff; --field:#172429; --stage:#0f191d; --ok:#5fbf86; color-scheme:dark}
+body{background:var(--bg);color:var(--fg);font-family:var(--ui);font-size:15px;line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:28px 48px;display:grid;gap:24px}
+header h1{font-family:var(--display);font-weight:800;font-size:26px;margin:0;letter-spacing:-.02em;text-wrap:balance}
+header p{margin:4px 0 0;color:var(--muted)}
+.main{display:grid;grid-template-columns:minmax(0,360px) minmax(0,1fr);gap:24px;align-items:start}
+@media (max-width:860px){.main{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:20px;display:grid;gap:16px;min-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--field);border:1px solid var(--line);border-radius:9px;padding:3px;gap:3px}
+.seg button{font:600 14px var(--ui);border:0;border-radius:7px;padding:9px 6px;background:transparent;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--panel);color:var(--fg);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+label{display:grid;gap:6px;font-weight:600;font-size:13px}
+label small{font-weight:500;color:var(--muted);font-size:12px}
+input,textarea{font:500 15px var(--ui);color:var(--fg);background:var(--field);border:1px solid var(--line);border-radius:8px;padding:10px 12px;width:100%;box-sizing:border-box}
+textarea{min-height:170px;resize:vertical;line-height:1.4}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.prefix{display:flex;align-items:center;background:var(--field);border:1px solid var(--line);border-radius:8px}
+.prefix span{padding-left:12px;color:var(--muted);font-weight:600}
+.prefix input{border:0;background:transparent;padding-left:6px}
+.prefix:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.prefix input:focus{outline:none}
+.primary{font:700 15px var(--ui);background:var(--accent);color:var(--accent-fg);border:0;border-radius:9px;padding:13px 16px;cursor:pointer}
+.primary:disabled{opacity:.55;cursor:default}
+.status{font-size:13px;color:var(--muted);min-height:1.2em;margin:0}
+.status.ok{color:var(--ok)} .status.err{color:var(--accent)}
+.stage{background:var(--stage);border-radius:12px;padding:20px;display:grid;place-items:center;min-width:0}
+.stage canvas{max-width:100%;height:auto;display:block;box-shadow:0 8px 28px rgba(0,0,0,.35);border-radius:2px}
+.stage.v canvas{max-height:78vh;width:auto}
+.log h2{font-size:15px;margin:0 0 8px}
+.tablebox{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:13px;font-variant-numeric:tabular-nums}
+th,td{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--muted);font-weight:600}
+.empty{color:var(--muted);font-size:13px;margin:0}
+.hint{font-size:12px;color:var(--muted);margin:-8px 0 0}
+.loghead{display:flex;flex-wrap:wrap;gap:12px;align-items:end;justify-content:space-between;margin-bottom:8px}
+.loghead h2{margin:0}
+.find{width:220px;max-width:100%}
+.find input{padding:8px 10px;font-size:14px}
+.chip{display:inline-block;font-size:12px;font-weight:700;padding:3px 8px;border-radius:99px;margin-right:8px;vertical-align:middle}
+.chip.active{background:color-mix(in srgb,var(--ok) 16%,transparent);color:var(--ok)}
+.chip.used{background:color-mix(in srgb,var(--muted) 18%,transparent);color:var(--muted)}
+.mini{font:600 12px var(--ui);border:1px solid var(--line);background:var(--field);color:var(--fg);border-radius:7px;padding:5px 10px;cursor:pointer;vertical-align:middle}
+.mini.confirm{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
+tr.used td{color:var(--muted)}
+tr.used td:first-child{text-decoration:line-through}
+.login{display:grid;gap:8px;margin-bottom:8px}
+.loginrow{display:flex;gap:8px;max-width:360px}
+.loginrow input{padding:8px 10px;font-size:14px}
+.loginrow .mini{padding:8px 14px}
+</style>
+<script src="config.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Подарочные сертификаты</h1>
+    <p>Заполните поля, проверьте превью и скачайте PNG.</p>
+  </header>
+
+  <div class="main">
+    <form class="panel" id="form" autocomplete="off">
+      <div class="seg" role="group" aria-label="Формат">
+        <button type="button" id="fmt-h" aria-pressed="true">Обычный</button>
+        <button type="button" id="fmt-v" aria-pressed="false">С пожеланием</button>
+      </div>
+
+      <div class="row">
+        <label for="num">Номер
+          <input id="num" inputmode="numeric" maxlength="7">
+        </label>
+        <label for="amount">Сумма, ₽
+          <input id="amount" inputmode="numeric" maxlength="7" value="3500">
+        </label>
+      </div>
+      <p class="hint" id="numhint">Номер подставляется сам, следующий после последнего выданного.</p>
+
+      <label for="name">Для кого <small>в родительном падеже: «Жени», «Александра Петрова»</small>
+        <div class="prefix"><span>для</span><input id="name" value="Жени"></div>
+      </label>
+
+      <label for="wish" id="wishwrap" hidden>Пожелание <small>каждая строка с новой строки, пустая строка = отступ</small>
+        <textarea id="wish">Пусть с опозданием подарок, но
+лучше поздно, чем никогда )))
+
+Главное, чтобы в жизни никогда не
+опаздывали чудеса,
+хорошие вести и счастливые
+моменты.
+С днем рождения ))))</textarea>
+      </label>
+
+      <button class="primary" id="save" type="submit">Скачать PNG</button>
+      <p class="status" id="status" role="status"></p>
+    </form>
+
+    <div class="stage" id="stage"><canvas id="cv" width="820" height="312" aria-label="Превью сертификата"></canvas></div>
+  </div>
+
+  <section class="panel log">
+    <div class="loghead">
+      <h2>Выданные сертификаты</h2>
+      <label for="find" class="find">Проверить номер
+        <input id="find" inputmode="numeric" maxlength="7" placeholder="например, 1430">
+      </label>
+    </div>
+    <form class="login" id="login" hidden>
+      <p class="empty" id="loginmsg">Чтобы видеть журнал и вести нумерацию, введите пароль магазина.</p>
+      <div class="loginrow">
+        <input id="key" type="password" placeholder="Пароль" autocomplete="current-password" aria-label="Пароль магазина">
+        <button class="mini" type="submit">Войти</button>
+      </div>
+    </form>
+    <p class="empty" id="findmsg" hidden></p>
+    <p class="empty" id="logempty">Здесь появится журнал: номер, сумма, кому и когда. Записи добавляются после скачивания.</p>
+    <div class="tablebox" id="logbox" hidden>
+      <table><thead><tr><th>№</th><th>Сумма</th><th>Кому</th><th>Формат</th><th>Выдан</th><th>Статус</th></tr></thead><tbody id="logbody"></tbody></table>
+    </div>
+  </section>
+</div>
+
+<script>
+(() => {
+const START_NUM = 1431;
+const ADDR_H = ["Катерников 7   -   Приморский пр. 59   -   Парфёновская 11   -   Капитанская 4"];
+const ADDR_V = ["ул. Катерников 7   -   Приморский пр. 59   -", "ул. Парфёновская 11   -   ул. Капитанская 4"];
+const RIGHT_H = ["Даёт право оплатить товары в магазинах LEOLSBEER по адресам:"];
+const RIGHT_V = ["Даёт право оплатить товары в", "магазинах LEOLSBEER по адресам:"];
+
+const $ = id => document.getElementById(id);
+const cv = $("cv"), ctx = cv.getContext("2d");
+let fmt = "h", numTouched = false, db = null, downloads = null, issued = [];
+const bgs = {};
+
+function loadImg(src){return new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=src;});}
+
+function rubles(n){
+  const a=Math.abs(n)%100, b=a%10;
+  if(a>10&&a<20) return "РУБЛЕЙ";
+  if(b===1) return "РУБЛЬ";
+  if(b>=2&&b<=4) return "РУБЛЯ";
+  return "РУБЛЕЙ";
+}
+const pad = n => String(n).padStart(7,"0");
+
+function setFont(weight, size, fam){
+  ctx.font = `${weight} ${size}px ${fam}`;
+  if ("letterSpacing" in ctx) ctx.letterSpacing = (-0.03*size).toFixed(2)+"px";
+}
+function textW(t){ return ctx.measureText(t).width; }
+// Draws centered text; shrinks size until it fits maxW. Returns final size.
+function centered(t, cx, baseline, {weight=700, size, fam='"Montserrat"', maxW=9999, fill="#fff"}){
+  let s=size; setFont(weight,s,fam);
+  while(textW(t)>maxW && s>10){ s-=0.5; setFont(weight,s,fam); }
+  const w=textW(t);
+  ctx.fillStyle = typeof fill==="function" ? fill(cx-w/2, cx+w/2, baseline, s) : fill;
+  ctx.textAlign="center"; ctx.textBaseline="alphabetic";
+  ctx.fillText(t, cx, baseline);
+  return s;
+}
+// Gold heading: light in the centre of the line, deeper at its edges
+const goldH = (x0,x1)=>{const g=ctx.createLinearGradient(x0,0,x1,0);
+  g.addColorStop(0,"#d2922f");g.addColorStop(.5,"#f8e79b");g.addColorStop(1,"#d2922f");return g;};
+// Wish text: warm orange-gold, darker at the top of each line
+const goldW = (x0,x1,b,s)=>{const g=ctx.createLinearGradient(0,b-s*.72,0,b);
+  g.addColorStop(0,"#bd8b36");g.addColorStop(.4,"#f2bb41");g.addColorStop(1,"#f0b93e");return g;};
+
+function wrapLines(text, maxW){
+  const out=[];
+  for(const raw of text.split("\n")){
+    const line=raw.trim();
+    if(!line){ out.push(null); continue; }
+    let cur="";
+    for(const w of line.split(/\s+/)){
+      const t=cur?cur+" "+w:w;
+      if(textW(t)>maxW && cur){ out.push(cur); cur=w; } else cur=t;
+    }
+    out.push(cur);
+  }
+  while(out.length && out[0]===null) out.shift();
+  while(out.length && out[out.length-1]===null) out.pop();
+  return out;
+}
+
+function state(){
+  const amount = parseInt(($("amount").value||"").replace(/\D/g,""),10) || 0;
+  return {
+    num: pad(parseInt(($("num").value||"").replace(/\D/g,""),10) || 0),
+    amount,
+    name: $("name").value.trim(),
+    wish: $("wish").value
+  };
+}
+
+function draw(){
+  const s=state(), bg=bgs[fmt]; if(!bg) return;
+  cv.width=bg.naturalWidth; cv.height=bg.naturalHeight;
+  ctx.clearRect(0,0,cv.width,cv.height); ctx.drawImage(bg,0,0);
+  const W=cv.width, cx=W/2;
+  const sum=`НА СУММУ ${s.amount} ${rubles(s.amount)}`;
+  const who=`для ${s.name||"…"}`;
+  if(fmt==="h"){
+    centered(s.num, cx, 17, {size:15});
+    centered("ПОДАРОЧНЫЙ  СЕРТИФИКАТ", cx, 67.5, {weight:800,size:35,fam:'"Montserrat Alternates"',fill:goldH,maxW:760});
+    centered(sum, cx, 110.5, {weight:800,size:35,fam:'"Montserrat Alternates"',fill:goldH,maxW:760});
+    centered(who, cx, 153.5, {size:35,maxW:760});
+    centered(RIGHT_H[0], cx, 202, {size:20,maxW:780});
+    centered(ADDR_H[0], cx, 225.5, {size:15,maxW:780});
+  } else {
+    centered(s.num, cx, 19, {size:15});
+    centered("ПОДАРОЧНЫЙ  СЕРТИФИКАТ", cx, 90.5, {weight:800,size:35,fam:'"Montserrat Alternates"',fill:goldH,maxW:560});
+    centered(sum, cx, 135.5, {weight:800,size:35,fam:'"Montserrat Alternates"',fill:goldH,maxW:560});
+    centered(who, cx, 180.5, {size:35,maxW:550});
+    // Wish block: centred between the name and the shop line, shrinks if long
+    const top=222, bottom=545, maxW=548;
+    let size=24, lines, h;
+    const layout=()=>{ setFont(800,size,'"Montserrat Alternates"');
+      lines=wrapLines(s.wish.toUpperCase(), maxW);
+      const lh=size*1.33, gap=size*.58;
+      h=lines.reduce((a,l)=>a+(l===null?gap:lh),0) - (lh - size*.72);
+      return {lh,gap}; };
+    let m=layout();
+    while(h>bottom-top && size>14){ size-=0.5; m=layout(); }
+    let y=top+((bottom-top)-h)/2 + size*.72;
+    for(const l of lines){
+      if(l===null){ y+=m.gap; continue; }
+      centered(l, cx, y, {weight:800,size,fam:'"Montserrat Alternates"',fill:goldW,maxW});
+      y+=m.lh;
+    }
+    centered(RIGHT_V[0], cx, 587, {size:20,maxW:560});
+    centered(RIGHT_V[1], cx, 611, {size:20,maxW:560});
+    centered(ADDR_V[0], cx, 649.5, {size:15,maxW:560});
+    centered(ADDR_V[1], cx, 677.5, {size:15,maxW:560});
+  }
+}
+
+function setFmt(f){
+  fmt=f;
+  $("fmt-h").setAttribute("aria-pressed", f==="h");
+  $("fmt-v").setAttribute("aria-pressed", f==="v");
+  $("wishwrap").hidden = f!=="v";
+  $("stage").classList.toggle("v", f==="v");
+  draw();
+}
+
+function nextNum(){
+  const local = (()=>{try{return parseInt(localStorage.getItem("lb-next")||"0",10)}catch(e){return 0}})();
+  const maxIssued = issued.reduce((m,r)=>Math.max(m, r.num||0), 0);
+  return Math.max(START_NUM, maxIssued+1, local);
+}
+function refreshNum(){ if(!numTouched){ $("num").value = pad(nextNum()); draw(); } }
+
+const fmtDate = t => { if(!t) return ""; const d=new Date(t); return d.toLocaleDateString("ru-RU")+" "+d.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"}); };
+let pendingRedeem=null, pendingTimer=null, found=null;
+
+function renderLog(){
+  const body=$("logbody"); body.textContent="";
+  const searching = $("find").value.trim()!=="";
+  const rows = searching ? (found ? [found] : []) : issued;
+  $("logempty").hidden = searching || issued.length>0;
+  $("logbox").hidden = rows.length===0;
+  for(const r of rows){
+    const id=pad(r.num), used=!!r.redeemedAt;
+    const tr=document.createElement("tr"); if(used) tr.className="used";
+    for(const v of [id, (r.amount||0).toLocaleString("ru-RU")+" ₽", "для "+(r.name||""), r.format==="v"?"с пожеланием":"обычный", fmtDate(r.createdAt)]){
+      const td=document.createElement("td"); td.textContent=v; tr.appendChild(td);
+    }
+    const td=document.createElement("td");
+    const chip=document.createElement("span");
+    chip.className="chip "+(used?"used":"active");
+    chip.textContent= used ? "Погашен "+fmtDate(r.redeemedAt) : "Активен";
+    td.appendChild(chip);
+    if(db){
+      const b=document.createElement("button"); b.type="button";
+      const armed = pendingRedeem===id;
+      b.className="mini"+(armed?" confirm":"");
+      b.textContent = armed ? (used?"Точно вернуть?":"Точно погасить?") : (used?"Вернуть":"Погасить");
+      b.onclick=()=>toggleRedeem(r);
+      td.appendChild(b);
+    }
+    tr.appendChild(td);
+    body.appendChild(tr);
+  }
+}
+
+async function toggleRedeem(r){
+  const id=pad(r.num);
+  if(pendingRedeem!==id){
+    pendingRedeem=id; clearTimeout(pendingTimer);
+    pendingTimer=setTimeout(()=>{pendingRedeem=null; renderLog();},4000);
+    renderLog(); return;
+  }
+  pendingRedeem=null; clearTimeout(pendingTimer);
+  const val = r.redeemedAt ? null : Date.now();
+  try{
+    await db.doc("certs/"+id).update({redeemedAt: val});
+    if(found && pad(found.num)===id) found={...found, redeemedAt: val};
+    renderLog();
+  }catch(err){ findMsg(`Не удалось сохранить статус (${err.code||"ошибка"}).`); }
+}
+
+function findMsg(t){ const el=$("findmsg"); el.textContent=t||""; el.hidden=!t; }
+let findSeq=0;
+async function onFind(){
+  const raw=$("find").value.replace(/\D/g,"");
+  found=null; findMsg("");
+  if(!raw){ renderLog(); return; }
+  const id=pad(parseInt(raw,10)); const seq=++findSeq;
+  const local = issued.find(r=>pad(r.num)===id);
+  if(local){ found=local; renderLog(); return; }
+  if(!db){ findMsg("Журнал недоступен в этом окне."); renderLog(); return; }
+  try{
+    const snap=await db.doc("certs/"+id).get();
+    if(seq!==findSeq) return;
+    if(snap.exists) found=snap.data(); else findMsg(`Сертификат № ${id} не найден в журнале.`);
+  }catch(err){ findMsg("Не удалось проверить номер."); }
+  renderLog();
+}
+
+function status(msg, kind){ const el=$("status"); el.textContent=msg; el.className="status"+(kind?" "+kind:""); }
+
+async function onSave(e){
+  e.preventDefault();
+  const s=state();
+  if(!s.name){ status("Впишите, для кого сертификат.","err"); $("name").focus(); return; }
+  if(!s.amount){ status("Впишите сумму.","err"); $("amount").focus(); return; }
+  const n=parseInt(s.num,10);
+  if(db){
+    try{ const snap=await db.doc("certs/"+s.num).get();
+      if(snap.exists && !$("save").dataset.confirm){
+        $("save").dataset.confirm="1"; $("save").textContent="Номер уже выдан. Скачать всё равно";
+        status(`Сертификат № ${s.num} уже есть в журнале. Поменяйте номер или нажмите ещё раз.`,"err"); return; }
+    }catch(err){}
+  }
+  delete $("save").dataset.confirm; $("save").textContent="Скачать PNG";
+  draw();
+  const blob=await new Promise(r=>cv.toBlob(r,"image/png"));
+  const filename=`Сертификат ${s.num} на сумму ${s.amount} для ${s.name.replace(/[\\/:*?"<>|]/g,"").replace(/\s+/g," ")}.png`;
+  if(!downloads){ status("Скачивание недоступно в этом браузере.","err"); return; }
+  $("save").disabled=true;
+  try{
+    const res=await downloads.save({filename, data:blob});
+    status(`Готово: ${filename}`,"ok");
+    try{localStorage.setItem("lb-next", String(n+1))}catch(e){}
+    if(db){
+      try{ await db.doc("certs/"+s.num).set({num:n, amount:s.amount, name:s.name, format:fmt, wish: fmt==="v"?s.wish:"", createdAt:Date.now()}); }
+      catch(err){ status(`Файл сохранён, но запись в журнал не прошла (${err.code||"ошибка"}).`,"err"); }
+    }
+    numTouched=false; refreshNum();
+  }catch(err){
+    if(err&&err.code==="declined") status("Скачивание отменено.");
+    else if(err&&err.code==="rate_limited") status("Окно сохранения уже открыто, подождите секунду.","err");
+    else status("Не получилось сохранить файл.","err");
+  }finally{ $("save").disabled=false; }
+}
+
+$("fmt-h").onclick=()=>setFmt("h");
+$("fmt-v").onclick=()=>setFmt("v");
+$("num").addEventListener("input",()=>{numTouched=true; draw();});
+for(const id of ["amount","name","wish"]) $(id).addEventListener("input",()=>{ delete $("save").dataset.confirm; $("save").textContent="Скачать PNG"; draw(); });
+$("form").addEventListener("submit",onSave);
+$("find").addEventListener("input",onFind);
+
+(async()=>{
+  $("num").value=pad(nextNum());
+  try{ await Promise.all([
+    document.fonts.load('800 35px "Montserrat Alternates"',"ПОДАРОЧНЫЙ"),
+    document.fonts.load('700 35px "Montserrat"',"для Жени")]); }catch(e){}
+  const [h,v]=await Promise.all([loadImg("bg-h.png"),loadImg("bg-v.png")]);
+  bgs.h=h; bgs.v=v; setFmt("h");
+})();
+
+// ---- Journal API (server/api.php) and direct downloads ----
+const API = (window.CERT_API||"").trim();
+let KEY = (()=>{try{return localStorage.getItem("lb-key")||""}catch(e){return ""}})();
+let listeners = [], pollTimer = null;
+
+function showLogin(msg){ $("login").hidden=false; if(msg) $("loginmsg").textContent=msg; }
+async function call(action, params, body){
+  const u = new URL(API, location.href);
+  u.searchParams.set("action", action); u.searchParams.set("key", KEY);
+  for(const [k,v] of Object.entries(params||{})) u.searchParams.set(k, v);
+  // text/plain keeps the request "simple", so no CORS preflight is needed
+  const r = await fetch(u, body ? {method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"}, body:JSON.stringify(body)} : {cache:"no-store"});
+  if(r.status===401){ showLogin("Неверный пароль. Введите пароль магазина."); throw {code:"unauthorized"}; }
+  if(!r.ok) throw {code:"http_"+r.status};
+  return r.json();
+}
+async function refresh(){
+  try{ const res = await call("list", {limit:50}); $("login").hidden=true;
+    const snap = {docs: (res.items||[]).map(r=>({data:()=>r}))};
+    listeners.forEach(fn=>fn(snap));
+  }catch(e){}
+}
+const apiDb = {
+  doc(path){ const id = path.split("/")[1]; return {
+    async get(){ const r = await call("get", {num:id}); return {exists:!!r.item, data:()=>r.item||undefined}; },
+    async set(data){ await call("save", {}, data); refresh(); },
+    async update(fields){ await call("update", {num:id}, fields); refresh(); }
+  }; },
+  collection(){ const q = {orderBy(){return q;}, limit(){return q;}, onSnapshot(fn){
+    listeners.push(fn); refresh(); clearInterval(pollTimer); pollTimer=setInterval(refresh, 20000);
+    return ()=>{}; }}; return q; }
+};
+downloads = { async save({filename, data}){
+  const url = URL.createObjectURL(data); const a = document.createElement("a");
+  a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 5000); return {status:"saved"}; } };
+
+$("login").addEventListener("submit", e=>{ e.preventDefault();
+  KEY = $("key").value.trim(); try{localStorage.setItem("lb-key", KEY)}catch(err){}
+  $("key").value=""; refresh(); });
+
+if(!API){
+  $("logempty").textContent = "Журнал не подключён: укажите адрес api.php в файле config.js. Сертификаты можно скачивать и без него, номер тогда ведётся в этом браузере.";
+} else {
+  db = apiDb;
+  if(!KEY) showLogin();
+  db.collection("certs").orderBy("num","desc").limit(50).onSnapshot(snap=>{
+    issued = snap.docs.map(d=>d.data());
+    if(found){ const f=issued.find(r=>r.num===found.num); if(f) found=f; }
+    renderLog(); refreshNum();
+  });
+}
+})();
+</script>
+</body>
+</html>
+
